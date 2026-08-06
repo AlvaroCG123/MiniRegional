@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Convidado {
+  id              Int       @id @default(autoincrement())
+  nome_completo   String
+  email           String    @unique
+  telefone        String    @unique
+  CPF             String    @unique
+  mesaId          Int
+  check_in        Boolean   @default(false)
+  horario_checkin DateTime?
+  criado_em       DateTime  @default(now())
+  mesa            Mesa      @relation(fields: [mesaId], references: [id])
+}
+
+model Usuario {
+  id            Int      @id @default(autoincrement())
+  nome_completo String
+  email         String   @unique
+  CPF           String   @unique
+  senha         String
+  cargo         Cargo
+  criado_em     DateTime @default(now())
+}
+
+enum Cargo {
+  ADMIN
+  CERIMONIALISTA
+}
+
+model Mesa {
+  id                Int         @id @default(autoincrement())
+  capacidade_maxima Int         @default(6)
+  convidado         Convidado[]
+}
