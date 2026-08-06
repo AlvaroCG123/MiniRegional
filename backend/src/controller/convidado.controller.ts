@@ -56,29 +56,16 @@ export async function PesqusiaConvidados(req: AuthRequest, res: Response) {
 
 export async function CriarConvidado(req: AuthRequest, res: Response) {
     try {
-        const { nome_completo, email, telefone, mesaId } = req.body
+        const { nome_completo, email, telefone, mesaId, CPF } = req.body
 
-        if( !nome_completo || !email || !telefone || !mesaId ){
+        if( !nome_completo || !email || !telefone || !mesaId || !CPF ){
             res.status(400).json({error:"Todos os dados são obrigatórios."})
-            return
-        }
-
-        const convidadoEmail = await prisma.convidado.findUnique({
-            where:{email}
-        })
-
-        const convidadoTelefone = await prisma.convidado.findUnique({
-            where:{ telefone }
-        })
-
-        if(convidadoEmail || convidadoTelefone){
-            res.status(400).json({error: "Já existe convidado com este E-mail ou Telefone."})
             return
         }
 
         const criar = await prisma.convidado.create({
             data: {
-                nome_completo, email, telefone, mesaId
+                nome_completo, email, telefone, mesaId, CPF
             }
         })
 
@@ -91,7 +78,7 @@ export async function CriarConvidado(req: AuthRequest, res: Response) {
 export async function AtualizarDados(req: AuthRequest, res: Response) {
     try {
         const { id } = req.params
-        const { nome_completo, email, telefone, mesaId } = req.body
+        const { nome_completo, email, telefone, mesaId, CPF } = req.body
 
         if(!id){
             res.status(400).json({error:"Id Invalido"})
@@ -107,21 +94,8 @@ export async function AtualizarDados(req: AuthRequest, res: Response) {
             return
         }
 
-        if( !nome_completo || !email || !telefone || !mesaId ){
+        if( !nome_completo || !email || !telefone || !mesaId || !CPF ){
             res.status(400).json({error:"Todos os dados são obrigatórios."})
-            return
-        }
-
-        const convidadoEmail = await prisma.convidado.findUnique({
-            where:{email}
-        })
-
-        const convidadoTelefone = await prisma.convidado.findUnique({
-            where:{ telefone }
-        })
-
-        if(convidadoEmail || convidadoTelefone){
-            res.status(400).json({error: "Já existe convidado com este E-mail ou Telefone."})
             return
         }
 
@@ -205,7 +179,7 @@ export async function desfazerCheckin(req: AuthRequest, res: Response) {
             }
         })
 
-        res.status(200).json(desfazerCheckin)
+        res.status(200).json(desfazercheckin)
     } catch (error) {
         res.status(400).json({error:"Falha ao Desfazer Check-in."})
     }
@@ -236,5 +210,15 @@ export async function DeletarConvidado(req: AuthRequest, res: Response) {
         res.status(200).json(deletar)
     } catch (error) {
         res.status(400).json({error:"Falha ao Deletar convidado."})
+    }
+}
+
+export async function ListarMesas(req: AuthRequest, res: Response) {
+    try {
+        const listar = await prisma.mesa.findMany({})
+
+        res.status(200).json(listar)
+    } catch (error) {
+        res.status(400).json({error :"Falha ao listar Convidados."})
     }
 }

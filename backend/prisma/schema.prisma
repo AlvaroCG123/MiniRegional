@@ -43,5 +43,5 @@ enum Cargo {
 model Mesa {
   id                Int         @id @default(autoincrement())
   capacidade_maxima Int         @default(6)
-  convidado         Convidado[]
+  mesa              Convidado[]
 }

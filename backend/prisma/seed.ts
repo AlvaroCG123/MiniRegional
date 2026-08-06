@@ -12,7 +12,8 @@ async function main() {
                 nome_completo: "Administrador",
                 email: "admin@wedding.com",
                 senha: senhaAdmin,
-                cargo: "ADMIN"
+                cargo: "ADMIN",
+                CPF: "2123123213123"
             }
         })
 
@@ -20,10 +21,23 @@ async function main() {
             data: {
                 nome_completo: "Cerimoialista",
                 email: "cerimonialista@wedding.com",
-                senha: "senhaCerimonialista",
-                cargo: "CERIMONIALISTA"
+                senha: senhaCerimonialista,
+                cargo: "CERIMONIALISTA",
+                CPF: "1231231333333"
             }
         })
+
+        await prisma.mesa.createMany({
+            data:[
+                {id:1},
+                {id:2},
+                {id:3},
+                {id:4},
+                {id:5},
+                {id:6}
+            ]
+        })
+            
 
         console.log("Seed Finalizado.")
     } catch (error) {

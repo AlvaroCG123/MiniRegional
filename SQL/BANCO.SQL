@@ -4,6 +4,7 @@ CREATE TABLE `Convidado` (
     `nome_completo` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `telefone` VARCHAR(191) NOT NULL,
+    `CPF` VARCHAR(191) NOT NULL,
     `mesaId` INTEGER NOT NULL,
     `check_in` BOOLEAN NOT NULL DEFAULT false,
     `horario_checkin` DATETIME(3) NULL,
@@ -11,6 +12,7 @@ CREATE TABLE `Convidado` (
 
     UNIQUE INDEX `Convidado_email_key`(`email`),
     UNIQUE INDEX `Convidado_telefone_key`(`telefone`),
+    UNIQUE INDEX `Convidado_CPF_key`(`CPF`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -19,11 +21,13 @@ CREATE TABLE `Usuario` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `nome_completo` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
+    `CPF` VARCHAR(191) NOT NULL,
     `senha` VARCHAR(191) NOT NULL,
     `cargo` ENUM('ADMIN', 'CERIMONIALISTA') NOT NULL,
     `criado_em` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `Usuario_email_key`(`email`),
+    UNIQUE INDEX `Usuario_CPF_key`(`CPF`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -37,3 +41,9 @@ CREATE TABLE `Mesa` (
 
 -- AddForeignKey
 ALTER TABLE `Convidado` ADD CONSTRAINT `Convidado_mesaId_fkey` FOREIGN KEY (`mesaId`) REFERENCES `Mesa`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- DropForeignKey
+ALTER TABLE `convidado` DROP FOREIGN KEY `Convidado_mesaId_fkey`;
+
+-- DropIndex
+DROP INDEX `Convidado_mesaId_fkey` ON `convidado`;

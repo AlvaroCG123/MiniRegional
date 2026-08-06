@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import usuarioRoutes from './routes/usuario.routes.js'
 import convidadoRoutes from './routes/convidado.routes.js'
+import mesaRoutes from './routes/mesa.routes.js'
 
 const app = express()
 const port = 3000
@@ -11,6 +12,7 @@ app.use(cors())
 
 app.use("/usuario", usuarioRoutes)
 app.use("/convidado", convidadoRoutes)
+app.use("/mesa", mesaRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
