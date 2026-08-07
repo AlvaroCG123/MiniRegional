@@ -215,7 +215,11 @@ export async function DeletarConvidado(req: AuthRequest, res: Response) {
 
 export async function ListarMesas(req: AuthRequest, res: Response) {
     try {
-        const listar = await prisma.mesa.findMany({})
+        const listar = await prisma.mesa.findMany({
+            include:{
+                convidado: true
+            }
+        })
 
         res.status(200).json(listar)
     } catch (error) {

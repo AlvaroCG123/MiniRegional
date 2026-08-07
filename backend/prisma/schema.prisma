@@ -20,9 +20,11 @@ model Convidado {
   CPF             String    @unique
   mesaId          Int
   check_in        Boolean   @default(false)
-  horario_checkin DateTime?
+  horario_checkin DateTime @default(now())
   criado_em       DateTime  @default(now())
   mesa            Mesa      @relation(fields: [mesaId], references: [id])
+
+  @@map("convidado")
 }
 
 model Usuario {
@@ -33,6 +35,8 @@ model Usuario {
   senha         String
   cargo         Cargo
   criado_em     DateTime @default(now())
+
+  @@map("usuario")
 }
 
 enum Cargo {
@@ -43,5 +47,7 @@ enum Cargo {
 model Mesa {
   id                Int         @id @default(autoincrement())
   capacidade_maxima Int         @default(6)
-  mesa              Convidado[]
+  convidado              Convidado[]
+
+  @@map("mesa")
 }
