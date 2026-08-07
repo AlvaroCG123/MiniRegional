@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import api from "../service/api"
 import { CircleCheck, Pencil, RefreshCw, Trash2 } from "lucide-react"
+import Swal from 'sweetalert2'
+import { useNavigate } from "react-router-dom"
 
 interface DadosConvidado {
     id: number,
@@ -29,6 +31,7 @@ const Dashboard = () => {
 
     async function PDF() {
         window.print()
+        alert("PDF Feito.")
     }
 
     async function DadosDashboard() {
@@ -69,7 +72,7 @@ const Dashboard = () => {
             const token = localStorage.getItem("@Wedding: token")
             console.log(token)
 
-            await api.patch(`/convidado/checkin/${dados.id}`,null, {
+            await api.patch(`/convidado/checkin/${dados.id}`, null, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -77,7 +80,11 @@ const Dashboard = () => {
 
             DadosDashboard()
             DadosConvidado()
-            alert("Checkin Feito Com Sucesso")
+            Swal.fire({
+                title: "Checkin Feito Com Sucesso!",
+                icon: "success",
+                draggable: true
+            });
         } catch (error) {
             console.error("Falha no checkin do Convidados", error)
             alert("Convidado já fez Checkin")
@@ -88,7 +95,12 @@ const Dashboard = () => {
             const token = localStorage.getItem("@Wedding: token")
             console.log(token)
 
-            await api.patch(`/convidado/defazercheckin/${dados.id}`,null, {
+            const resposta = window.confirm("Voce tem certeza que quer refazer o checkin desse convidado?")
+            if (!resposta) {
+                return
+            }
+
+            await api.patch(`/convidado/defazercheckin/${dados.id}`, null, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -108,7 +120,7 @@ const Dashboard = () => {
             console.log(token)
 
             const resposta = window.confirm("Voce tem certeza que que excluir esse convidado?")
-            if(!resposta){
+            if (!resposta) {
                 return
             }
 
@@ -129,15 +141,21 @@ const Dashboard = () => {
 
     async function HandleConvidado(dados: DadosConvidado) {
         try {
-            if(idEditando){
+            if (idEditando) {
                 const token = localStorage.getItem("@Wedding: token")
-            await api.put(`/convidado/atualizar/${idEditando}`, dados, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+
+                const resposta = window.confirm("Voce tem certeza que quer Atualizar esse convidado?")
+                if (!resposta) {
+                    return
                 }
-            })
-            alert("Convidado Atualizado")
-            }else{
+
+                await api.put(`/convidado/atualizar/${idEditando}`, dados, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                alert("Convidado Atualizado")
+            } else {
                 const token = localStorage.getItem("@Wedding: token")
                 await api.post("/convidado/criar", dados, {
                     headers: {
@@ -146,7 +164,7 @@ const Dashboard = () => {
                 })
                 alert("Convidado Criado")
             }
-            
+
             reset()
             DadosDashboard()
             DadosConvidado()
@@ -155,31 +173,34 @@ const Dashboard = () => {
         }
     }
 
-    function PuxarDados(ConvidadoSelecionado: DadosConvidado){
+    function PuxarDados(ConvidadoSelecionado: DadosConvidado) {
         console.log(idEditando)
         setEditando(ConvidadoSelecionado.id)
         console.log(idEditando)
-            setValue(("nome_completo"), ConvidadoSelecionado.nome_completo)
-            setValue(("email"), ConvidadoSelecionado.email)
-            setValue(("CPF"), ConvidadoSelecionado.CPF)
-            setValue(("telefone"), ConvidadoSelecionado.telefone)
-            setValue(("mesaId"), ConvidadoSelecionado.mesaId)
-        }
+        setValue(("nome_completo"), ConvidadoSelecionado.nome_completo)
+        setValue(("email"), ConvidadoSelecionado.email)
+        setValue(("CPF"), ConvidadoSelecionado.CPF)
+        setValue(("telefone"), ConvidadoSelecionado.telefone)
+        setValue(("mesaId"), ConvidadoSelecionado.mesaId)
+    }
 
-    function VoltarEditar(){
+    function VoltarEditar() {
         setEditando(null)
         reset()
     }
 
-    function Loading(){
-        
+    function Loading() {
+
         setTimeout(() => (
             <RefreshCw></RefreshCw>
         ), 1000);
     }
 
-    function Sair(){
+    const navigate = useNavigate()
+
+    function Sair() {
         localStorage.removeItem("@Wedding: token")
+        navigate("/login")
     }
 
     useEffect(() => {
@@ -194,8 +215,8 @@ const Dashboard = () => {
             <nav className="flex justify-between items-center border-b-amber-400 border-2 h-20 p-2">
                 <h1 className="text-5xl text-green-800">DASHBOARD: ADMIN</h1>
                 <div className="flex gap-3">
-                    <button onClick={()=>PDF()} className="bg-orange-700 text-white py-2 px-3 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">EXPORTAR</button>
-                    <button onClick={()=>Sair()} className="bg-orange-700 text-white py-2 px-12 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">SAIR</button>
+                    <button onClick={() => PDF()} className="bg-orange-700 text-white py-2 px-3 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">EXPORTAR</button>
+                    <button onClick={() => Sair()} className="bg-orange-700 text-white py-2 px-12 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">SAIR</button>
                 </div>
             </nav>
             <section className="  px-50 flex justify-center gap-50 p-5">
@@ -219,22 +240,22 @@ const Dashboard = () => {
                     </div>
                     <div className="flex flex-col">
                         <h1 className="text-green-800 text-4xl py-5" >Nome Completo</h1>
-                        <input {...register("nome_completo", { required: "Nome Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text"  />
+                        <input {...register("nome_completo", { required: "Nome Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text" />
                         {errors.nome_completo && <span className="text-red-500">{errors.nome_completo.message}</span>}
                     </div>
                     <div className="flex flex-col">
                         <h1 className="text-green-800 text-4xl py-5" >E-mail</h1>
-                        <input {...register("email", { required: "E-mail Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="email"  />
+                        <input {...register("email", { required: "E-mail Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="email" />
                         {errors.email && <span className="text-red-500">{errors.email.message}</span>}
                     </div>
                     <div className="flex flex-col">
                         <h1 className="text-green-800 text-4xl py-5" >Telefone</h1>
-                        <input {...register("telefone", { required: "Telefone Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text"  />
+                        <input {...register("telefone", { required: "Telefone Obrigatório" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text" />
                         {errors.telefone && <span className="text-red-500">{errors.telefone.message}</span>}
                     </div>
                     <div className="flex flex-col">
                         <h1 className="text-green-800 text-4xl py-5" >Cpf</h1>
-                        <input {...register("CPF", { required: "Cpf Obrigatória" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text"/>
+                        <input {...register("CPF", { required: "Cpf Obrigatória" })} className="bg-amber-50 text-[20px] p-2 border-2 rounded-2xl border-amber-400" type="text" />
                         {errors.CPF && <span className="text-red-500">{errors.CPF.message}</span>}
                     </div>
                     <div className="flex flex-col">
@@ -249,45 +270,45 @@ const Dashboard = () => {
                     </div>
                     {idEditando && (
                         <div className="flex flex-col py-4">
-                        <button onClick={()=>VoltarEditar()} className="bg-orange-700 text-white py-2 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">
-                            Voltar
-                        </button>
-                    </div>
+                            <button onClick={() => VoltarEditar()} className="bg-orange-700 text-white py-2 rounded-2xl text-2xl hover:bg-orange-600 cursor-pointer">
+                                Voltar
+                            </button>
+                        </div>
                     )}
                 </form>
                 <div>
-                <table>
-                    <thead>
-                        <tr className="border">
-                            <th className="bg-green-800 p-2 text-center text-amber-50">Nome Completo</th>
-                            <th className="bg-green-800 p-2 text-center text-amber-50">Dados</th>
-                            <th className="bg-green-800 p-2 text-center text-amber-50">Mesa</th>
-                            <th className="bg-green-800 p-2 text-center text-amber-50">Status</th>
-                            <th className="bg-green-800 p-2 text-center text-amber-50">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {convidado.map((c)=>(
-                        <tr key={c.id}>
-                            <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.nome_completo}</td>
-                            <td className="bg-white p-2 text-center text-green-800 font-semibold">
-                                <div className="flex text-center">
-                                    {c.email} {c.telefone}
-                                </div></td>
-                            <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.mesaId}</td>
-                            <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.check_in ? "CONFIRMADO" : "PENDENTE"}</td>
-                            <td className="bg-white p-2 text-center text-green-800 font-semibold">
-                                <div className="flex gap-2">
-                                    <Pencil onClick={()=>PuxarDados(c)} className="cursor-pointer"></Pencil>
-                                    <Trash2 onClick={()=>excluirConvidado(c)} className="cursor-pointer"></Trash2>
-                                    <CircleCheck className="cursor-pointer" onClick={()=>Checkin(c)}></CircleCheck>
-                                    <RefreshCw onClick={()=>desfazerCheckin(c)} className="cursor-pointer"></RefreshCw>
-                                </div>
-                                </td>
-                        </tr>
-                        ))}
-                    </tbody>
-                </table>
+                    <table>
+                        <thead>
+                            <tr className="border">
+                                <th className="bg-green-800 p-2 text-center text-amber-50">Nome Completo</th>
+                                <th className="bg-green-800 p-2 text-center text-amber-50">Dados</th>
+                                <th className="bg-green-800 p-2 text-center text-amber-50">Mesa</th>
+                                <th className="bg-green-800 p-2 text-center text-amber-50">Status</th>
+                                <th className="bg-green-800 p-2 text-center text-amber-50">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {convidado.map((c) => (
+                                <tr key={c.id}>
+                                    <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.nome_completo}</td>
+                                    <td className="bg-white p-2 text-center text-green-800 font-semibold">
+                                        <div className="flex text-center">
+                                            {c.email} {c.telefone}
+                                        </div></td>
+                                    <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.mesaId}</td>
+                                    <td className="bg-white p-2 text-center text-green-800 font-semibold">{c.check_in ? "CONFIRMADO" : "PENDENTE"}</td>
+                                    <td className="bg-white p-2 text-center text-green-800 font-semibold">
+                                        <div className="flex gap-2">
+                                            <Pencil onClick={() => PuxarDados(c)} className="cursor-pointer"></Pencil>
+                                            <Trash2 onClick={() => excluirConvidado(c)} className="cursor-pointer"></Trash2>
+                                            <CircleCheck className="cursor-pointer" onClick={() => Checkin(c)}></CircleCheck>
+                                            <RefreshCw onClick={() => desfazerCheckin(c)} className="cursor-pointer"></RefreshCw>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </main>
